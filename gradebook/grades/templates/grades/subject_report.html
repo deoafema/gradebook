@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" type="text/css">
+    <title>{{ subject.name }} Report</title>
+</head>
+<body>
+    <h1>{{ subject.name }} Report</h1>
+    <p>Average Score: {{ average_score }}</p>
+    <p>Highest Score: {{ highest_score }}</p>
+    <p>Lowest Score: {{ lowest_score }}</p>
+
+    <h2>Grades</h2>
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Grade Type</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade in grades %}
+            <tr>
+                <td>{{ grade.student.name }}</td>
+                <td>{{ grade.get_grade_type_display }}</td>
+                <td>{{ grade.score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Student</th>
+                <th>Grade Type</th>
+                <th>Score</th>
+            </tr>
+        </tfoot>
+    </table>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script>
+        new DataTable('#example', {
+            initComplete: function () {
+                this.api()
+                    .columns()
+                    .every(function () {
+                        let column = this;
+
+                        // Create select element
+                        let select = document.createElement('select');
+                        select.add(new Option(''));
+                        column.footer().replaceChildren(select);
+
+                        // Apply listener for user change in value
+                        select.addEventListener('change', function () {
+                            column
+                                .search(select.value, {exact: true})
+                                .draw();
+                        });
+
+                        // Add list of options
+                        column
+                            .data()
+                            .unique()
+                            .sort()
+                            .each(function (d, j) {
+                                select.add(new Option(d));
+                            });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
